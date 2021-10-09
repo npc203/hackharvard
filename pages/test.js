@@ -1,8 +1,8 @@
 import React, { useState, useEffect } from "react";
 import Webcam from "react-webcam";
 import { Camera, CameraOptions } from "@mediapipe/camera_utils";
-import { POSE_LANDMARKS, Pose, VERSION } from "@mediapipe/pose";
 import { drawConnectors } from "@mediapipe/drawing_utils";
+import { Pose, VERSION } from "@mediapipe/pose";
 
 const videoConstraints = {
   width: 1280,
@@ -12,19 +12,15 @@ const videoConstraints = {
 
 function Testcam() {
   const webcamRef = React.useRef(null);
-  const canvasReference = React.useRef(null);
-  const [cameraReady, setCameraReady] = useState(false);
-  let canvasCtx;
-  let camera;
+  const canvasRef = React.useRef(null);
+  let camera = null;
 
   useEffect(() => {
-    const options = {
+    const pose = new Pose({
       locateFile: (file) => {
-        return `https://cdn.jsdelivr.net/npm/@mediapipe/pose@${VERSION}/${file}`;
+        return `https://cdn.jsdelivr.net/npm/@mediapipe/pose/${file}`;
       },
-    };
-    const pose = new Pose(options);
-
+    });
     pose.setOptions({
       maxNumFaces: 1,
       minDetectionConfidence: 0.5,
@@ -32,11 +28,11 @@ function Testcam() {
     });
     pose.onResults(onResults);
 
-    console.log("canvasReference", canvasReference);
     if (
       typeof webcamRef.current !== "undefined" &&
       webcamRef.current !== null
     ) {
+      // eslint-disable-next-line react-hooks/exhaustive-deps
       camera = new Camera(webcamRef.current.video, {
         onFrame: async () => {
           await pose.send({ image: webcamRef.current.video });
@@ -46,28 +42,10 @@ function Testcam() {
       });
       camera.start();
     }
-  }, [cameraReady]);
+  });
 
   function onResults(results) {
-    console.log("results");
-    canvasCtx.save();
-    canvasCtx.clearRect(0, 0, canvasElement.width, canvasElement.height);
-    canvasCtx.drawImage(
-      results.image,
-      0,
-      0,
-      canvasElement.width,
-      canvasElement.height
-    );
-    if (results.multiFaceLandmarks) {
-      for (const landmarks of results.multiFaceLandmarks) {
-        drawConnectors(canvasCtx, landmarks, POSE_LANDMARKS, {
-          color: "#C0C0C070",
-          lineWidth: 1,
-        });
-      }
-    }
-    canvasCtx.restore();
+    console.log(results);
   }
 
   return (
@@ -85,7 +63,7 @@ function Testcam() {
         }}
       />
       <canvas
-        ref={canvasReference}
+        ref={canvasRef}
         style={{
           position: "absolute",
           marginLeft: "auto",
