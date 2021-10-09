@@ -1,0 +1,57 @@
+
+[2021-10-10 03:32:23] Traceback (most recent call last):
+  File "load_handler.pyx", line 20, in cefpython_py38.LoadHandler_OnLoadingStateChange
+  File "D:\begin_research\Hackathon Projects\HackHarvard\hackharvard\backend_py\libtest.py", line 876, in OnLoadingStateChange
+    if self.load_start_time:
+AttributeError: 'ClientHandler' object has no attribute 'load_start_time'
+
+
+[2021-10-10 03:32:49] Traceback (most recent call last):
+  File "load_handler.pyx", line 20, in cefpython_py38.LoadHandler_OnLoadingStateChange
+  File "D:\begin_research\Hackathon Projects\HackHarvard\hackharvard\backend_py\libtest.py", line 876, in OnLoadingStateChange
+    if self.load_start_time:
+AttributeError: 'ClientHandler' object has no attribute 'load_start_time'
+
+
+[2021-10-10 03:34:11] Traceback (most recent call last):
+  File "load_handler.pyx", line 20, in cefpython_py38.LoadHandler_OnLoadingStateChange
+  File "D:\begin_research\Hackathon Projects\HackHarvard\hackharvard\backend_py\libtest.py", line 876, in OnLoadingStateChange
+    if self.load_start_time:
+AttributeError: 'ClientHandler' object has no attribute 'load_start_time'
+
+
+[2021-10-10 03:34:34] Traceback (most recent call last):
+  File "load_handler.pyx", line 20, in cefpython_py38.LoadHandler_OnLoadingStateChange
+  File "libtest.py", line 876, in OnLoadingStateChange
+    if self.load_start_time:
+AttributeError: 'ClientHandler' object has no attribute 'load_start_time'
+
+
+[2021-10-10 03:36:31] Traceback (most recent call last):
+  File "pybrowsercef.py", line 30, in <module>
+    CefBrowserApp().run()
+  File "C:\Users\HP\anaconda3\lib\site-packages\kivy\app.py", line 950, in run
+    runTouchApp()
+  File "C:\Users\HP\anaconda3\lib\site-packages\kivy\base.py", line 582, in runTouchApp
+    EventLoop.mainloop()
+  File "C:\Users\HP\anaconda3\lib\site-packages\kivy\base.py", line 347, in mainloop
+    self.idle()
+  File "C:\Users\HP\anaconda3\lib\site-packages\kivy\base.py", line 387, in idle
+    Clock.tick()
+  File "C:\Users\HP\anaconda3\lib\site-packages\kivy\clock.py", line 733, in tick
+    self.post_idle(ts, self.idle())
+  File "C:\Users\HP\anaconda3\lib\site-packages\kivy\clock.py", line 689, in idle
+    usleep(1000000 * sleeptime)
+  File "C:\Users\HP\anaconda3\lib\site-packages\kivy\clock.py", line 965, in usleep
+    _usleep(microseconds, self._sleep_obj)
+  File "C:\Users\HP\anaconda3\lib\site-packages\kivy\clock.py", line 504, in _usleep
+    _kernel32.WaitForSingleObject(obj, 0xffffffff)
+KeyboardInterrupt
+
+
+[2021-10-10 03:36:37] Traceback (most recent call last):
+  File "load_handler.pyx", line 20, in cefpython_py38.LoadHandler_OnLoadingStateChange
+  File "D:\begin_research\Hackathon Projects\HackHarvard\hackharvard\backend_py\libtest.py", line 876, in OnLoadingStateChange
+    if self.load_start_time:
+AttributeError: 'ClientHandler' object has no attribute 'load_start_time'
+

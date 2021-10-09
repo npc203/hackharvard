@@ -13,18 +13,18 @@ from pynput.keyboard import Key, Controller
 
 
 stop = True
-keyboard = Controller()
+# keyboard = Controller()
 
 
-def game_thread():
-    while stop:
-        time.sleep(1)
-        keyboard.press(Key.up)
-        keyboard.release(Key.up)
+# def game_thread():
+#     while stop:
+#         time.sleep(1)
+#         keyboard.press(Key.up)
+#         keyboard.release(Key.up)
 
 
-loop_thread = td.Thread(target=game_thread)
-loop_thread.start()
+# loop_thread = td.Thread(target=game_thread)
+# loop_thread.start()
 
 cef.Shutdown()
 CefBrowserApp().run()

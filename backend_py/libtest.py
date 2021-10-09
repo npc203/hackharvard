@@ -759,6 +759,7 @@ class CefBrowser(Widget):
 class ClientHandler:
     def __init__(self, browserWidget):
         self.browserWidget = browserWidget
+        self.load_start_time = None
 
     def _fix_select_boxes(self, frame):
         # This is just a temporary fix, until proper Popup widgets
