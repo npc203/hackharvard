@@ -11,6 +11,7 @@
   "dependencies": {
     "@mediapipe/camera_utils": "^0.3.1632432234",
     "@mediapipe/drawing_utils": "^0.3.1620248257",
+    "@mediapipe/face_mesh": "^0.4.1633559619",
     "@mediapipe/pose": "^0.4.1633558788",
     "next": "11.1.2",
     "react": "17.0.2",
