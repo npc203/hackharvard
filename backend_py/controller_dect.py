@@ -2,16 +2,26 @@ from pynput.keyboard import Key, Controller
 import cv2
 import mediapipe as mp
 import numpy as np
+import math
 
 mp_drawing = mp.solutions.drawing_utils
 mp_drawing_styles = mp.solutions.drawing_styles
 mp_pose = mp.solutions.pose
 
-prevL = None
-prevR = None
+
+center_mass = None
+prev_center_mass = None
+frame_count = 0
 curr_pos = [0, 1, 0]
+
 direction = None
 keyboard = Controller()
+
+
+def unnormalize(normalized_x: float, normalized_y: float, image_width: int, image_height: int):
+    x_px = min(math.floor(normalized_x * image_width), image_width - 1)
+    y_px = min(math.floor(normalized_y * image_height), image_height - 1)
+    return x_px, y_px
 
 
 def press(key):
@@ -21,17 +31,16 @@ def press(key):
 
 draw_line = False
 cap = cv2.VideoCapture(1 + cv2.CAP_DSHOW)
-if cap.isOpened():
-    width = int(cap.get(cv2.CAP_PROP_FRAME_WIDTH))
-    height = int(cap.get(cv2.CAP_PROP_FRAME_HEIGHT))
-    draw_line = np.ones((height, width)) * 255
+
+width = int(cap.get(cv2.CAP_PROP_FRAME_WIDTH))
+height = int(cap.get(cv2.CAP_PROP_FRAME_HEIGHT))
+draw_line = np.ones((height, width)) * 255
 
 with mp_pose.Pose(min_detection_confidence=0.5, min_tracking_confidence=0.5) as pose:
     while cap.isOpened():
         success, image = cap.read()
         if not success:
             print("Ignoring empty camera frame.")
-            # If loading a video, use 'break' instead of 'continue'.
             continue
 
         # Flip the image horizontally for a later selfie-view display, and convert
@@ -40,39 +49,56 @@ with mp_pose.Pose(min_detection_confidence=0.5, min_tracking_confidence=0.5) as 
         image.flags.writeable = False
         results = pose.process(image)
 
-        # Draw the pose annotation on the image.
-        image.flags.writeable = True
-        image = cv2.cvtColor(image, cv2.COLOR_RGB2BGR)
-
         if results.pose_landmarks:
-            LS = results.pose_landmarks.landmark[mp_pose.PoseLandmark.LEFT_SHOULDER].x
-            RS = results.pose_landmarks.landmark[mp_pose.PoseLandmark.RIGHT_SHOULDER].x
-            # print("LEFT", prevL, LS)
-            # print("RIGHT", prevR, RS)
-            if prevL and prevR:
-                if (prevL + prevR) / 2 - (LS + RS) / 2 > 0 and direction != "A":
-                    print("Moving Left")
-                    direction = "A"
-                    press(Key.left)
-                if (prevL + prevR) / 2 - (LS + RS) / 2 < 0 and direction != "B":
-                    print("Moving Right")
-                    direction = "B"
-                    press(Key.right)
-            else:
-                prevL = (LS + RS) / 2
-                prevR = (LS + RS) / 2
-            # print(direction, prevR, prevL)
+            LS = results.pose_landmarks.landmark[mp_pose.PoseLandmark.LEFT_SHOULDER]
+            RS = results.pose_landmarks.landmark[mp_pose.PoseLandmark.RIGHT_SHOULDER]
 
-            # center_mass = [0, 0]
-            # avg_size = len(results.pose_landmarks.landmark)
-            # for marker in results.pose_landmarks.landmark:
-            #     center_mass[0] += marker.x or 0
-            #     center_mass[1] += marker.y or 0
+            LX = unnormalize(LS.x, LS.y, width, height)
+            RX = unnormalize(RS.x, RS.y, width, height)
 
-            # center_mass[0] = int(center_mass[0])
-            # center_mass[1] = int(center_mass[1])
-            # print(center_mass)
-            # cv2.circle(image, center_mass, 0, (0, 0, 255), 5)
+            center_mass = [(LX[0] + RX[0]) // 2, (LX[1] + RX[1]) // 2]
+
+            # Latency to get the relative motion
+            if frame_count > 3:
+                if not prev_center_mass:
+                    prev_center_mass = center_mass
+                else:
+                    maybe_print = ""
+
+                    # Controller.exe lol
+                    diffX = center_mass[0] - prev_center_mass[0]
+                    diffY = center_mass[1] - prev_center_mass[1]
+
+                    # Vertical motion
+                    if abs(diffY) > 25:
+                        if diffY > 0:
+                            maybe_print += "down"
+                            press(Key.down)
+                        else:
+                            maybe_print += "up"
+                            press(Key.up)
+
+                    # Horizontal motion
+                    if abs(diffX) > 50:
+                        if diffX > 0:
+                            maybe_print += "right"
+                            press(Key.right)
+                        else:
+                            maybe_print += "left"
+                            press(Key.left)
+
+                    # Printing if movement changes
+                    if maybe_print:
+                        print("Moving to ", maybe_print)
+
+                frame_count = 0
+
+            if frame_count == 0:
+                prev_center_mass = center_mass
+
+            frame_count += 1
+
+            cv2.circle(image, center_mass, 0, (0, 0, 255), 20)
 
         mp_drawing.draw_landmarks(
             image,
@@ -80,10 +106,16 @@ with mp_pose.Pose(min_detection_confidence=0.5, min_tracking_confidence=0.5) as 
             mp_pose.POSE_CONNECTIONS,
             landmark_drawing_spec=mp_drawing_styles.get_default_pose_landmarks_style(),
         )
-        if draw_line.any():
-            coord_x = width // 3
-            cv2.line(image, (coord_x, 0), (coord_x, height), (0, 255, 0), thickness=1)
-            cv2.line(image, (coord_x * 2, 0), (coord_x * 2, height), (0, 255, 0), thickness=1)
+
+        image.flags.writeable = True
+        image = cv2.cvtColor(image, cv2.COLOR_RGB2BGR)
+
+        # Old method gridlines sections
+        # if draw_line.any():
+        #     coord_x = width // 3
+        #     cv2.line(image, (coord_x, 0), (coord_x, height), (0, 255, 0), thickness=1)
+        #     cv2.line(image, (coord_x * 2, 0), (coord_x * 2, height), (0, 255, 0), thickness=1)
+
         cv2.imshow("Pose detection", image)
         if cv2.waitKey(5) & 0xFF == 27:
             break
