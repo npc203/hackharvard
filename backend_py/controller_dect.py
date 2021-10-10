@@ -30,7 +30,7 @@ def press(key):
 
 
 draw_line = False
-cap = cv2.VideoCapture(1 + cv2.CAP_DSHOW)
+cap = cv2.VideoCapture(0)
 
 width = int(cap.get(cv2.CAP_PROP_FRAME_WIDTH))
 height = int(cap.get(cv2.CAP_PROP_FRAME_HEIGHT))
@@ -59,7 +59,7 @@ with mp_pose.Pose(min_detection_confidence=0.5, min_tracking_confidence=0.5) as 
             center_mass = [(LX[0] + RX[0]) // 2, (LX[1] + RX[1]) // 2]
 
             # Latency to get the relative motion
-            if frame_count > 3:
+            if frame_count > 5:
                 if not prev_center_mass:
                     prev_center_mass = center_mass
                 else:
